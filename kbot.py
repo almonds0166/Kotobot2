@@ -1,6 +1,8 @@
 
 import os
+import random
 
+import asyncio
 import discord
 import asyncpraw
 from asyncprawcore import NotFound
@@ -30,6 +32,26 @@ class Kotobot(discord.Client):
    async def on_message(self, message):
       if not self.ready: return
       if message.author.bot: return # ignore bots
+
+      # detect potential for dad jokes
+      name = self.rex.hi_im_dad(message.clean_content)
+      if name:
+         await asyncio.sleep(random.uniform(1,2))
+         await message.add_reaction("<:heh:847744125788356608>") # custom emoji
+         if len(name) <= 32 and random.uniform(0, 70) > len(name):
+            content = f"Hi {name}, I'm Dad"
+            cps = random.triangular(8,12,9) # characters per second
+            await asyncio.sleep(random.uniform(0.5,1))
+            async with message.channel.typing():
+               await asyncio.sleep(len(content) / cps)
+               ref = message.to_reference()
+               await message.channel.send(
+                  content,
+                  reference=ref,
+                  mention_author=False
+               )
+         else:
+            pass # eh, if it's too long, don't bother
 
       # detect subreddits
       potential_subreddits = self.rex.subreddits(message.content)

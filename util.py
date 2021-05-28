@@ -11,13 +11,14 @@ class Rex():
       patterns (dict[re.Pattern]): Set of regular expression patterns used by the methods.
    """
    def __init__(self):
-      self.ex = {}
+      self.exs = {}
       self.patterns = {}
 
-      self.ex["subreddits"] = r"(\s/?|^/?)r/([a-zA-Z0-9_]{3,21})/?(\s|$|[,.!?])"
+      self.exs["subreddits"] = r"(\s/?|^/?)r/([a-zA-Z0-9_]{3,21})/?(\s|$|[,.!?])"
+      self.exs["dadjoke"] = r"(^|[.!?:;]\s)((ok|okay|now|and|anyway|so|thus|even),?\s)?(I'm|im|I\sam)\s((\w|\s)+)([,.!:;]|$|\n)"
 
-      for k, v in self.ex.items():
-         self.patterns[k] = re.compile(v)
+      for k, v in self.exs.items():
+         self.patterns[k] = re.compile(v, re.IGNORECASE)
 
    def subreddits(self, msg: str):
       """Extract a list of subreddits mentioned within ``msg``.
@@ -37,6 +38,21 @@ class Rex():
             seen.add(sr.lower())
             subreddits.append(sr)
       return subreddits
+
+   def hi_im_dad(self, msg: str):
+      """Detects potential for those lovely "Hi X, I'm Dad" jokes.
+
+      For example, an input of "I'm hungry" should return "hungry", because any keen Dad can reply
+      with "Hi hungry, I'm Dad." Also picks up "im hungry" and "I am hungry". If no potential for a
+      dad joke is found, returns None.
+
+      Args:
+         msg: Message to parse.
+      """
+      for match in self.patterns["dadjoke"].finditer(msg):
+         name = match.group(5)
+         return name # just pick the first one
+      return None
 
 def shorten_title(title: str, max_length: int=32) -> str:
    """Shortens the given string on a word-by-word basis.
@@ -62,7 +78,9 @@ def shorten_title(title: str, max_length: int=32) -> str:
          return short_title + "..."
       short_title += " " + word
 
-if __name__ == "__main__":
+# tests for this module
+
+def _subreddits_tests():
    rex = Rex()
    tests = (
       "Hello, this is a test.\n"
@@ -77,3 +95,28 @@ if __name__ == "__main__":
    for test in tests.split("\n"):
       print(test)
       print(f"\t{rex.subreddits(test)}")
+   print("")
+
+def _dadjoke_tests():
+   rex = Rex()
+   tests = (
+      "I'm hungry\n"
+      "I'm testing this with multiple words\n"
+      "I'm going to try this since maybe I want to have a limit to how long this can get\n"
+      "I'm wanting to stop at commas, like this.\n"
+      "I'm also wanting it to stop at periods.\n"
+      "It would be cool if split by sentences. I'm testing.\n"
+      "But it shouldn't pick up if I'm starting over here, because it could be conditional.\n"
+      "And here, I'm thinking it shouldn't work.\n"
+      "And here. I'm thinking it shouldn't work? because of the question mark.\n"
+      "Anyway I'm thinking of picking this up.\n"
+      "OK, I'm wanting to pick this up, too.\n"
+   ).strip()
+   for test in tests.split("\n"):
+      print(test)
+      print(f"\t{rex.hi_im_dad(test)}")
+   print("")
+
+if __name__ == "__main__":
+   _subreddits_tests()
+   _dadjoke_tests()
