@@ -68,10 +68,9 @@ class Kotobot(discord.Client):
                else:
                   subreddits.append(sr)
             if subreddits:
-               content = ""
                embed = discord.Embed()
-               embed.title = "Mentioned subreddits"
-               embed.description = ""
+               name = "Mentioned subreddits"
+               value = ""
                if len(subreddits) == 1:
                   sr = subreddits[0]
                   embed.title = f"r/{sr}"
@@ -85,32 +84,32 @@ class Kotobot(discord.Client):
                         nsfw = submission.over_18
                         pinned = submission.stickied
                         score = submission.score
-                        score = f"⬆️{score}" if score >= 0 else f"⬇️{-score}"
+                        score = f"⬆️ {score}" if score >= 0 else f"⬇️ {-score}"
                         prefix = f"{'⚠️' if nsfw else ''}{'📌' if pinned else ''}"
                         if len(prefix): prefix += " "
                         submissions.append(f"* \\[[{score}]({link})\\] {prefix}{title}")
-                     if submissions: break
-                  if submissions:
-                     embed.description = "\n".join(submissions)
-                     if time_filter == "all":
-                        embed.description = \
-                           "Top posts from all time\n" + \
-                           embed.description
-                     else:
-                        embed.description = \
-                           f"Top posts from the past {time_filter}\n" + \
-                           embed.description
+                     if len(submissions) >= 3: # ideally between 3 and 5 posts
+                        break
+                     elif time_filter != "all":
+                        submissions = []
+                  if time_filter == "all":
+                     name = "Top posts from all time"
                   else:
-                     embed.description = "There're no submissions in this subreddit yet."
+                     name = f"Top posts from the past {time_filter}"
+                  if submissions:
+                     value = "\n".join(submissions)
+                  else:
+                     value = "There're no submissions in this subreddit yet."
                else:
                   bullet_list = [f"* [r/{sr}](https://reddit.com/r/{sr}/)" for sr in subreddits]
                   if len(subreddits) > 16:
-                     embed.description = "\n".join(bullet_list[:15]) + "\n..."
+                     value = "\n".join(bullet_list[:15]) + "\n..."
                   elif len(subreddits) > 1:
-                     embed.description = "\n".join(bullet_list)
+                     value = "\n".join(bullet_list)
+               embed.add_field(name=name, value=value, inline=False)
                ref = message.to_reference()
                await message.channel.send(
-                  content=content,
+                  "",
                   embed=embed,
                   reference=ref,
                   mention_author=False
