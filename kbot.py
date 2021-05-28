@@ -20,6 +20,8 @@ class Kotobot(discord.Client):
          user_agent="Kotobot/2.0"
       )
 
+      self.colour = discord.Colour(16747354) # https://www.spycolor.com/
+
       self.ready = False
 
    async def on_ready(self):
@@ -68,7 +70,7 @@ class Kotobot(discord.Client):
                else:
                   subreddits.append(sr)
             if subreddits:
-               embed = discord.Embed()
+               embed = discord.Embed(colour=self.colour)
                name = "Mentioned subreddits"
                value = ""
                if len(subreddits) == 1:
