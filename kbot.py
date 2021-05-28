@@ -40,7 +40,7 @@ class Kotobot(discord.Client):
       if name:
          if len(name) <= 32:
             await asyncio.sleep(random.uniform(1,2))
-            await message.add_reaction("<:heh:847744125788356608>") # custom emoji
+            await message.add_reaction("😏")
             if random.uniform(0, 70) > len(name):
                content = f"Hi {name}, I'm Dad"
                cps = random.triangular(8,12,9) # characters per second
@@ -116,6 +116,8 @@ class Kotobot(discord.Client):
                   reference=ref,
                   mention_author=False
                )
+            else:
+               await message.add_reaction("🤔")
 
 if __name__ == "__main__":
    kbot = Kotobot()
