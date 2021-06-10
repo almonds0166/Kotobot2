@@ -37,7 +37,7 @@ class Kotobot(discord.Client):
 
       # detect potential for dad jokes
       name = self.rex.hi_im_dad(message.clean_content)
-      if name:
+      if name and name.lower() not in ("dad"):
          if len(name) <= 32:
             await asyncio.sleep(random.uniform(1,2))
             await message.add_reaction("😏")
