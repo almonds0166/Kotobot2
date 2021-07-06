@@ -15,8 +15,7 @@ class Meta(commands.Cog):
    async def stats(self, ctx):
       """Gives some analytics"""
       description = (
-         f"{BOT_NAME} v{self.bot.__version__} "
-         f"([source](https://github.com/almonds0166/Kotobot2))"
+         f"{BOT_NAME} [v{self.bot.__version__}](https://github.com/almonds0166/Kotobot2)"
       )
 
       e = discord.Embed(

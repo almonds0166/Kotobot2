@@ -24,7 +24,7 @@ class Developer(commands.Cog):
    async def reload(self, ctx, *modules):
       """Reload some or all extensions"""
       if len(modules) == 0:
-         modules = self.bot.available_modules()
+         modules = list(self.bot.loaded_modules)
 
       for module in modules:
          print(f"Reloading cogs.{module}... ", end="")
@@ -33,6 +33,25 @@ class Developer(commands.Cog):
 
       await ctx.send(
          f"Reloaded the following extensions: " + \
+         ", ".join(f"`{module}`" for module in modules)
+      )
+
+   @commands.command(hidden=True)
+   @commands.is_owner()
+   async def load(self, ctx, *modules):
+      """Load new extensions"""
+      if len(modules) == 0:
+         modules = self.bot.available_modules()
+
+      for module in modules:
+         if module in self.bot.loaded_modules: continue
+         print(f"Loading cogs.{module}... ", end="")
+         self.bot.load_extension(f"cogs.{module}")
+         print("done.")
+         self.bot.loaded_modules.add(module)
+
+      await ctx.send(
+         f"Loaded the following extensions: " + \
          ", ".join(f"`{module}`" for module in modules)
       )
 

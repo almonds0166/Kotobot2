@@ -39,10 +39,12 @@ class Kotobot(commands.Bot):
       self.pre_tokenizer = tokenizers.pre_tokenizers.BertPreTokenizer()
       
       self.path = Path(__file__).parent
+      self.loaded_modules = set()
       for module in self.available_modules():
          print(f"Loading cogs.{module}... ", end="")
          self.load_extension(f"cogs.{module}")
          print("done.")
+         self.loaded_modules.add(module)
 
       self.memory = Path("./koto.ltm")
 
