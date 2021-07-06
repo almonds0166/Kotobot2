@@ -13,9 +13,8 @@ TZ = pytz.timezone("America/New_York")
 HOUR = 3
 MINUTE = 0
 
-class MoonCog(commands.Cog):
-   """Behavior that has to do with phases of the moon.
-   """
+class Lunar(commands.Cog):
+   """Behavior that has to do with phases of the moon"""
    def __init__(self, bot):
       self.bot = bot
       self.check_moon_phase.start()
@@ -34,6 +33,7 @@ class MoonCog(commands.Cog):
 
    @commands.command()
    async def moon(self, ctx):
+      """Gives a little summary of the current lunar phase."""
       summary = get_moon_summary()
       await self.bot.type_(ctx.channel, summary)
       msg = await ctx.send(summary)
@@ -58,8 +58,7 @@ class MoonCog(commands.Cog):
       now = now.replace(tzinfo=None)
       future = future.replace(tzinfo=None)
       sleep_time = (future - now).seconds
-      print(sleep_time)
       await asyncio.sleep(sleep_time)
 
 def setup(bot):
-   bot.add_cog(MoonCog(bot))
+   bot.add_cog(Lunar(bot))

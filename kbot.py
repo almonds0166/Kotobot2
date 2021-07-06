@@ -2,6 +2,7 @@
 import os
 from pathlib import Path
 import random
+import datetime
 from typing import List
 
 import asyncio
@@ -18,8 +19,8 @@ class Kotobot(commands.Bot):
    def __init__(self):
       super().__init__(
          "$",
-         #case_insensitive=True,
-         #help_command=None,
+         case_insensitive=True,
+         help_command=None,
       )
 
       self.__version__ = __version__
@@ -48,8 +49,23 @@ class Kotobot(commands.Bot):
 
       self.memory = Path("./koto.ltm")
 
+      self.t0 = datetime.datetime.utcnow()
       self.disconnects = 0
       self.ready = False
+
+   @property
+   def uptime(self) -> datetime.timedelta:
+      return datetime.datetime.utcnow() - self.t0
+
+   def format_uptime(self) -> str:
+      seconds = int(self.uptime.total_seconds())
+      minutes = seconds // 60
+      hours = minutes // 60
+      days = hours // 24
+      if days:
+         return f"{days}d{hours%24:02d}h{minutes%60:02d}m"
+      else:
+         return f"{hours}h{minutes%60:02d}m{seconds%60:02d}s"
 
    def available_modules(self):
       modules = set()
@@ -73,6 +89,7 @@ class Kotobot(commands.Bot):
 
    async def on_ready(self):
       if not self.ready:
+         self.t0 = datetime.datetime.utcnow()
          print("Logged in.")
       else:
          self.disconnects += 1
