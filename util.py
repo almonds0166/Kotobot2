@@ -1,5 +1,20 @@
 
 import re
+from datetime import datetime
+import asyncio
+
+import pylunar
+
+MOON_EMOJIS = {
+   "NEW_MOON": "🌑",
+   "WAXING_CRESCENT": "🌒",
+   "FIRST_QUARTER": "🌓",
+   "WAXING_GIBBOUS": "🌔",
+   "FULL_MOON": "🌕",
+   "WANING_GIBBOUS": "🌖",
+   "LAST_QUARTER": "🌗",
+   "WANING_CRESCENT": "🌘",
+}
 
 class Rex():
    """Helper class to handle regular expressions-related methods.
@@ -53,6 +68,16 @@ class Rex():
          name = match.group(5)
          return name # just pick the first one
       return None
+
+def get_moon_phase() -> str:
+   """Returns an emoji representing the current moon phase.
+   """
+
+   mi = pylunar.MoonInfo((42, 21, 30), (-71, 3, 35)) # Boston, MA
+   mi.update((datetime.utcnow()))
+   phase = mi.phase_name()
+
+   return MOON_EMOJIS[phase]
 
 def shorten_title(title: str, max_length: int=32) -> str:
    """Shortens the given string on a word-by-word basis.
@@ -117,6 +142,12 @@ def _dadjoke_tests():
       print(f"\t{rex.hi_im_dad(test)}")
    print("")
 
+def _get_moon_phase():
+   loop = asyncio.get_event_loop()
+   emoji = loop.run_until_complete(get_moon_phase({"User-Agent": "Kotobot/2.0"}))
+   print(emoji)
+
 if __name__ == "__main__":
    _subreddits_tests()
    _dadjoke_tests()
+   _get_moon_phase()
