@@ -16,7 +16,8 @@ class DadCog(commands.Cog):
       if message.author.bot: return # ignore bots for now
 
       # detect potential for dad jokes
-      name = self.bot.rex.hi_im_dad(message.clean_content)
+      first_line = message.clean_content.split("\n")[0]
+      name = self.bot.rex.hi_im_dad(first_line)
       if name and name.lower() not in ("dad"):
          if len(name) <= 32:
             await asyncio.sleep(random.uniform(1,2))
