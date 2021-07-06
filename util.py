@@ -1,7 +1,9 @@
 
 import re
+import sqlite3
 from datetime import datetime
 import asyncio
+from typing import Optional, Any
 
 import pylunar
 
@@ -69,15 +71,112 @@ class Rex():
          return name # just pick the first one
       return None
 
-def get_moon_phase() -> str:
-   """Returns an emoji representing the current moon phase.
-   """
+def remember(database, key: str, value: Optional[str]=None, *, default: Any=None):
+   """Save or load key-value pairs.
 
+   Use ``remember(key)`` to remember the value for the key. Returns ``default`` if not yet stored.
+
+   Use ``remember(key, value)`` to associate the key with the value in LTM.
+   """
+   with sqlite3.connect(database) as conn:
+      c = conn.cursor()
+      c.execute(
+         """
+         CREATE TABLE IF NOT EXISTS memo (
+            key text PRIMARY KEY,
+            value text NOT NULL
+         );
+         """
+      )
+      conn.commit()
+      if value is None:
+         item = c.execute(
+            """
+            SELECT value FROM memo WHERE key = ?;
+            """,
+            (key,)
+         ).fetchone()
+         return default if item is None else item[0]
+      else:
+         c.execute(
+            """
+            DELETE FROM memo WHERE key = ?;
+            """,
+            (key,)
+         )
+         c.execute(
+            """
+            INSERT INTO memo VALUES (?, ?);
+            """,
+            (key, value)
+         )
+         conn.commit()
+         return value
+
+def forget(database, key: str):
+   """Forget a key-value pair in LTM.
+   """
+   with sqlite3.connect(database) as conn:
+      c = conn.cursor()
+      c.execute(
+         """
+         CREATE TABLE IF NOT EXISTS memo (
+            key text PRIMARY KEY,
+            value text NOT NULL
+         );
+         """
+      )
+      c.execute(
+         """
+         DELETE FROM memo WHERE key = ?;
+         """,
+         (key,)
+      )
+      conn.commit()
+
+def inflect_number(word: str, count: float):
+   """Simple function to pluralize a word if ``count`` is greater than 1.
+   """
+   return word + ("" if 0 <= count < 1 else "s")
+
+def get_moon_info() -> pylunar.MoonInfo:
+   """Returns moon info for current time.
+   """
    mi = pylunar.MoonInfo((42, 21, 30), (-71, 3, 35)) # Boston, MA
    mi.update((datetime.utcnow()))
+
+   return mi
+
+def get_moon_emoji() -> str:
+   """Returns an emoji representing the current moon phase.
+   """
+   mi = get_moon_info()
    phase = mi.phase_name()
 
    return MOON_EMOJIS[phase]
+
+def get_moon_summary() -> str:
+   """Give some sentences about the current lunar phase.
+   """
+   mi = get_moon_info()
+
+   phase = mi.phase_name().replace("_", " ").lower()
+   summary = f"The moon is currently a {phase}\n"
+
+   age = mi.age()
+   days = inflect_number("day", age)
+   summary += f"We are {age:.2f} {days} into the lunar cycle\n"
+
+   new_moon = mi.time_to_new_moon()/24
+   full_moon = mi.time_to_full_moon()
+   if new_moon < full_moon:
+      days = inflect_number("day", new_moon)
+      summary += f"About {new_moon:.2f} {days} till the next new moon 🌚"
+   else:
+      days = inflect_number("day", full_moon)
+      summary += f"About {full_moon:.2f} {days} till the full moon 🌝"
+
+   return summary
 
 def shorten_title(title: str, max_length: int=32) -> str:
    """Shortens the given string on a word-by-word basis.

@@ -11,7 +11,8 @@ import asyncpraw
 from asyncprawcore import NotFound
 import tokenizers
 
-from util import Rex
+from util import Rex, get_moon_emoji, get_moon_info
+from __version__ import __version__
 
 class Kotobot(commands.Bot):
    def __init__(self):
@@ -20,6 +21,8 @@ class Kotobot(commands.Bot):
          #case_insensitive=True,
          #help_command=None,
       )
+
+      self.__version__ = __version__
 
       self.headers = {
          "User-Agent": "Kotobot/2.0",
@@ -30,22 +33,43 @@ class Kotobot(commands.Bot):
          client_secret=os.environ["KBOT_REDDIT_CLIENT_SECRET"],
          user_agent=self.headers["User-Agent"]
       )
+      self.last_moon_info = get_moon_info()
 
       self.color = discord.Colour(16747354) # https://www.spycolor.com/
 
-      self.tokenizer = tokenizers.Tokenizer(tokenizers.models.BPE(unk_token="[UNK]"))
-      self.tokenizer.normalizer = tokenizers.normalizers.BertNormalizer()
-      self.tokenizer.pre_tokenizer = tokenizers.pre_tokenizers.BertPreTokenizer()
+      self.normalizer = tokenizers.normalizers.BertNormalizer()
+      self.pre_tokenizer = tokenizers.pre_tokenizers.BertPreTokenizer()
       
       self.path = Path(__file__).parent
-      for file in (self.path / "cogs").iterdir():
-         if file.suffix != ".py": continue
-         print(f"Loading cogs.{file.stem}... ", end="")
-         self.load_extension(f"cogs.{file.stem}")
+      for module in self.available_modules():
+         print(f"Loading cogs.{module}... ", end="")
+         self.load_extension(f"cogs.{module}")
          print("done.")
+
+      self.memory = Path("./koto.ltm")
 
       self.disconnects = 0
       self.ready = False
+
+   def available_modules(self):
+      modules = set()
+      for file in (self.path / "cogs").iterdir():
+         if file.suffix != ".py": continue
+         modules.add(file.stem)
+      return modules
+
+   def tokenize(self, sequence: str) -> List[str]:
+      """Break up a sequence of words into word-level tokens.
+      """
+      normalized = self.normalizer.normalize_str(sequence)
+      tokenized = self.pre_tokenizer.pre_tokenize_str(normalized)
+      return [word for word, _ in tokenized]
+
+   async def type_(self, channel, msg: str):
+      cps = random.triangular(8,12,9) # characters per second
+      await asyncio.sleep(random.uniform(0.5,1))
+      async with channel.typing():
+         await asyncio.sleep(len(msg) / cps)
 
    async def on_ready(self):
       if not self.ready:

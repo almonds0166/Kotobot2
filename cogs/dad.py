@@ -23,16 +23,13 @@ class DadCog(commands.Cog):
             await message.add_reaction("😏")
             if True or random.uniform(0, 70) > len(name):
                content = f"Hi {name}, I'm Dad"
-               cps = random.triangular(8,12,9) # characters per second
-               await asyncio.sleep(random.uniform(0.5,1))
-               async with message.channel.typing():
-                  await asyncio.sleep(len(content) / cps)
-                  ref = message.to_reference()
-                  await message.channel.send(
-                     content,
-                     reference=ref,
-                     mention_author=False
-                  )
+               await self.bot.type_(message.channel, content)
+               ref = message.to_reference()
+               await message.channel.send(
+                  content,
+                  reference=ref,
+                  mention_author=False
+               )
          else:
             pass # eh, if it's too long, don't bother
 
