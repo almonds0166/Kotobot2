@@ -57,9 +57,13 @@ class Developer(commands.Cog):
       forget(self.bot.memory, key)
       await ctx.message.add_reaction("👌")
 
-   @commands.group(invoke_without_command=True)
+   @commands.group(
+      invoke_without_command=True,
+      description="``git version``, ``git status``, and ``git pull`` supported"
+   )
    @commands.is_owner()
    async def git(self, ctx):
+      """git functionality"""
       pass
 
    @git.command()
@@ -90,12 +94,13 @@ class Developer(commands.Cog):
          changed_files = changed_files[:5]
          changed_files.append("...")
 
-      changes_ = inflect_number("change", changes)
-      e.add_field(
-         name=f"{changes} {changes_}",
-         value="\n".join(f"`{file}`" for file in changed_files),
-         inline=True
-      )
+      if changes:
+         changes_ = inflect_number("change", changes)
+         e.add_field(
+            name=f"{changes} {changes_}",
+            value="\n".join(f"`{file}`" for file in changed_files),
+            inline=True
+         )
 
       # status on untracked files
       untracked_files = repo.untracked_files
@@ -104,25 +109,26 @@ class Developer(commands.Cog):
          untracked_files = untracked_files[:5]
          untracked_files.append("...")
 
-      files = inflect_number("file", num_files)
-      e.add_field(
-         name=f"{num_files} untracked {files}",
-         value="\n".join(f"`{file}`" for file in untracked_files),
-         inline=True
-      )
+      if num_files:
+         files = inflect_number("file", num_files)
+         e.add_field(
+            name=f"{num_files} untracked {files}",
+            value="\n".join(f"`{file}`" for file in untracked_files),
+            inline=True
+         )
 
       await ctx.send(embed=e)
 
-   # @git.command()
-   # async def pull(self, ctx):
-   #    repo = git.Repo(self.bot.path)
-   #    o = repo.remotes.origin
-   #    fetch_infos = o.pull()
-   #    await ctx.send((
-   #       f"Done.\n"
-   #       f"{len(fetch_infos)=}\n"
-   #       f"Remember to reload any updated extensions."
-   #    ))
+   @git.command()
+   async def pull(self, ctx):
+      repo = git.Repo(self.bot.path)
+      o = repo.remotes.origin
+      fetch_infos = o.pull()
+      await ctx.send((
+         f"Done.\n"
+         f"{len(fetch_infos)=}\n"
+         f"Remember to reload any updated extensions."
+      ))
 
 def setup(bot):
    bot.add_cog(Developer(bot))

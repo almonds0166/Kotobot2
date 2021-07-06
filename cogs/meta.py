@@ -108,11 +108,11 @@ class Meta(commands.Cog):
          else:
             command = bot.get_command(name)
             if command is not None:
-               help = f""
+               help_ = f""
                if command.help is not None:
-                  help = command.help
+                  help_ = command.help
                embed.add_field(name=f"**{command}**",
-                           value=f"{command.description}```{generate_usage(name)}```\n{help}",
+                           value=f"{command.description}\n```{generate_usage(name)}```\n{help_}",
                            inline=False)
             else:
                msg = " ".join(commands)
