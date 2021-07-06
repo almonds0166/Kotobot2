@@ -13,7 +13,6 @@ from asyncprawcore import NotFound
 import tokenizers
 
 from util import Rex, get_moon_emoji, get_moon_info
-from __version__ import __version__
 
 class Kotobot(commands.Bot):
    def __init__(self):
@@ -22,8 +21,6 @@ class Kotobot(commands.Bot):
          case_insensitive=True,
          help_command=None,
       )
-
-      self.__version__ = __version__
 
       self.headers = {
          "User-Agent": "Kotobot/2.0",
