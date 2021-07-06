@@ -11,7 +11,7 @@ class Developer(commands.Cog):
    def __init__(self, bot):
       self.bot = bot
 
-   @commands.command()
+   @commands.command(hidden=True)
    @commands.is_owner()
    async def tokenize(self, ctx, *, args=""):
       """Test out the tokenizer on an input sequence"""
@@ -19,10 +19,10 @@ class Developer(commands.Cog):
       tokens = self.bot.tokenize(args)
       await ctx.send(str(tokens))
 
-   @commands.command()
+   @commands.command(hidden=True)
    @commands.is_owner()
    async def reload(self, ctx, *modules):
-      """Reload some or all extensions."""
+      """Reload some or all extensions"""
       if len(modules) == 0:
          modules = self.bot.available_modules()
 
@@ -36,7 +36,7 @@ class Developer(commands.Cog):
          ", ".join(f"`{module}`" for module in modules)
       )
 
-   @commands.command()
+   @commands.command(hidden=True)
    @commands.is_owner()
    async def remember(self, ctx, key: str, value: str=None):
       """Lookup or set a value in long-term memory"""
@@ -45,12 +45,12 @@ class Developer(commands.Cog):
          if item is None:
             await ctx.send(f"No value saved for key `{key}` yet")
          else:
-            await ctx.send(f"`{key}: {item}`")
+            await ctx.send(item)
       else:
          remember(self.bot.memory, key, value)
          await ctx.message.add_reaction("👌")
 
-   @commands.command()
+   @commands.command(hidden=True)
    @commands.is_owner()
    async def forget(self, ctx, key: str):
       """Forget a value in long-term memory"""
@@ -59,19 +59,22 @@ class Developer(commands.Cog):
 
    @commands.group(
       invoke_without_command=True,
-      description="``git version``, ``git status``, and ``git pull`` supported"
+      description="``git version``, ``git status``, and ``git pull`` supported",
+      hidden=True,
    )
    @commands.is_owner()
    async def git(self, ctx):
       """git functionality"""
       pass
 
-   @git.command()
+   @git.command(hidden=True)
+   @commands.is_owner()
    async def version(self, ctx):
       """Show the GitPython version"""
       await ctx.send(f"GitPython=={git.__version__}")
 
-   @git.command()
+   @git.command(hidden=True)
+   @commands.is_owner()
    async def status(self, ctx):
       """List how dirty the repo is"""
       e = discord.Embed(
@@ -121,7 +124,8 @@ class Developer(commands.Cog):
 
       await ctx.send(embed=e)
 
-   @git.command()
+   @git.command(hidden=True)
+   @commands.is_owner()
    async def pull(self, ctx):
       """Pull and merge any changes from the repo"""
       repo = git.Repo(self.bot.path)
@@ -133,12 +137,25 @@ class Developer(commands.Cog):
          f"Remember to reload any updated extensions."
       ))
 
-   @commands.command()
+   @commands.command(hidden=True)
    @commands.is_owner()
    async def shutdown(self, ctx):
       """Log me out"""
       await ctx.message.add_reaction("😮")
       await self.bot.logout()
+
+   @commands.command(hidden=True)
+   @commands.is_owner()
+   async def eval(self, ctx, *, args=None):
+      """Dangerous Python eval command"""
+      if args is None: return
+      kbot = self.bot
+      try:
+         result = eval(args)
+      except:
+         await ctx.message.add_reaction("🥴")
+      else:
+         await ctx.send(str(result))
 
 def setup(bot):
    bot.add_cog(Developer(bot))

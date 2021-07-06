@@ -10,6 +10,7 @@ IGNORE = (
    commands.MissingRequiredArgument,
    commands.DisabledCommand,
    commands.NoPrivateMessage,
+   commands.NotOwner,
 )
 
 class ErrorCog(commands.Cog):

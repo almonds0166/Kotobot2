@@ -137,7 +137,7 @@ def forget(database, key: str):
 def inflect_number(word: str, count: float):
    """Simple function to pluralize a word if ``count`` is greater than 1.
    """
-   return word + ("" if 0 <= count < 1 else "s")
+   return word + ("" if 0 <= count <= 1 else "s")
 
 def get_moon_info() -> pylunar.MoonInfo:
    """Returns moon info for current time.

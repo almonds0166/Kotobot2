@@ -33,7 +33,7 @@ class Lunar(commands.Cog):
 
    @commands.command()
    async def moon(self, ctx):
-      """Gives a little summary of the current lunar phase."""
+      """Gives a little summary of the current lunar phase"""
       summary = get_moon_summary()
       await self.bot.type_(ctx.channel, summary)
       msg = await ctx.send(summary)
