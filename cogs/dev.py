@@ -68,10 +68,12 @@ class Developer(commands.Cog):
 
    @git.command()
    async def version(self, ctx):
+      """Show the GitPython version"""
       await ctx.send(f"GitPython=={git.__version__}")
 
    @git.command()
    async def status(self, ctx):
+      """List how dirty the repo is"""
       e = discord.Embed(
          title="git status",
          description="",
@@ -121,6 +123,7 @@ class Developer(commands.Cog):
 
    @git.command()
    async def pull(self, ctx):
+      """Pull and merge any changes from the repo"""
       repo = git.Repo(self.bot.path)
       o = repo.remotes.origin
       fetch_infos = o.pull()
@@ -129,6 +132,13 @@ class Developer(commands.Cog):
          f"{len(fetch_infos)=}\n"
          f"Remember to reload any updated extensions."
       ))
+
+   @commands.command()
+   @commands.is_owner()
+   async def shutdown(self, ctx):
+      """Log me out"""
+      await ctx.message.add_reaction("😮")
+      await self.bot.logout()
 
 def setup(bot):
    bot.add_cog(Developer(bot))
