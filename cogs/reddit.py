@@ -42,6 +42,11 @@ class RedditCog(commands.Cog):
                   for time_filter in ("day", "week", "month", "year", "all"):
                      async for submission in subreddit.top(time_filter=time_filter, limit=5):
                         title = shorten_title(submission.title, max_length=48)
+                        # escape some markdown
+                        title = title.replace("\\", "\\\\")
+                        title = title.replace("[", "\\[")
+                        title = title.replace("]", "\\]")
+                        title = title.replace("_", "\\_")
                         link = f"https://reddit.com{submission.permalink}"
                         nsfw = submission.over_18
                         pinned = submission.stickied
@@ -49,7 +54,7 @@ class RedditCog(commands.Cog):
                         score = f"⬆️ {score}" if score >= 0 else f"⬇️ {-score}"
                         prefix = f"{'⚠️' if nsfw else ''}{'📌' if pinned else ''}"
                         if len(prefix): prefix += " "
-                        submissions.append(f"* \\[[{score}]({link})\\] {prefix}{title}")
+                        submissions.append(f"\\* \\[[{score}]({link})\\] {prefix}{title}")
                      if len(submissions) >= 3: # ideally between 3 and 5 posts
                         break
                      elif time_filter != "all":
@@ -63,7 +68,7 @@ class RedditCog(commands.Cog):
                   else:
                      value = "There're no submissions in this subreddit yet."
                else:
-                  bullet_list = [f"* [r/{sr}](https://reddit.com/r/{sr}/)" for sr in subreddits]
+                  bullet_list = [f"\\* [r/{sr}](https://reddit.com/r/{sr}/)" for sr in subreddits]
                   if len(subreddits) > 16:
                      value = "\n".join(bullet_list[:15]) + "\n..."
                   elif len(subreddits) > 1:

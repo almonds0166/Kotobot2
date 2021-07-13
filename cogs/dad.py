@@ -22,7 +22,7 @@ class DadCog(commands.Cog):
          if len(name) <= 32:
             await asyncio.sleep(random.uniform(1,2))
             await message.add_reaction("😏")
-            if True or random.uniform(0, 70) > len(name):
+            if False: #random.uniform(0, 70) > len(name):
                content = f"Hi {name}, I'm Dad"
                await self.bot.type_(message.channel, content)
                ref = message.to_reference()
