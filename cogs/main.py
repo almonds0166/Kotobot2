@@ -8,6 +8,9 @@ import aiohttp
 import discord
 from discord.ext import commands
 
+import sys; sys.path.append("..")
+from util import remember
+
 class Main(commands.Cog):
    """General commands"""
    def __init__(self, bot):
@@ -19,11 +22,11 @@ class Main(commands.Cog):
       if args is None: return
       await ctx.send(codecs.encode(args, "rot_13"))
 
-   @commands.command(aliases=["dogs", "doggo"])
+   @commands.command(aliases=["doggo", "pupper", "puppy"])
    async def dog(self, ctx):
       """Random doggo"""
       headers = self.bot.headers.copy()
-      api_key = os.getenv("THE_DOG_API_KEY")
+      api_key = remember(self.bot.memory, "THE_DOG_API_KEY")
       if api_key: headers["x-api-key"] = api_key
       async with aiohttp.ClientSession(headers=self.bot.headers) as session:
          async with session.get("https://api.thedogapi.com/v1/images/search") as response:
@@ -70,6 +73,44 @@ class Main(commands.Cog):
                value=r["breeds"][0]["temperament"],
                inline=False
             )
+
+         e.set_image(url=r["url"])
+
+         await ctx.send(embed=e)
+
+   @commands.command(aliases=["kitty", "catto", "kitten"])
+   async def cat(self, ctx):
+      """Random catto"""
+      headers = self.bot.headers.copy()
+      api_key = remember(self.bot.memory, "THE_CAT_API_KEY")
+      if api_key: headers["x-api-key"] = api_key
+      async with aiohttp.ClientSession(headers=self.bot.headers) as session:
+         async with session.get("https://api.thecatapi.com/v1/images/search") as response:
+            code = response.status
+            if code != 200:
+               await ctx.send(f"Received `{code} {RESPONSE_CODES[code]}` 😦")
+               return
+            r = (await response.json())[0]
+
+         has_info = bool(r["breeds"])
+
+         e = discord.Embed(
+            title="Random catto" if not has_info else r["breeds"][0]["name"],
+            color=self.bot.color,
+         )
+         if has_info:
+            if "life_span" in r["breeds"][0]:
+               e.add_field(
+                  name="Life span",
+                  value=r["breeds"][0]["life_span"].replace(" - ", "–"),
+                  inline=True
+               )
+            if "temperament" in r["breeds"][0]:
+               e.add_field(
+                  name="Temperament",
+                  value=r["breeds"][0]["temperament"],
+                  inline=False
+               )
 
          e.set_image(url=r["url"])
 
