@@ -4,6 +4,9 @@ import asyncio
 
 from discord.ext import commands, tasks
 
+import sys; sys.path.append("..")
+from util import remember
+
 class DadCog(commands.Cog):
    """Behavior that has to do with making "Hi X, I'm Dad" jokes.
    """
@@ -21,7 +24,8 @@ class DadCog(commands.Cog):
       if name and name.lower() not in ("dad"):
          if len(name) <= 32:
             await asyncio.sleep(random.uniform(1,2))
-            await message.add_reaction("😏")
+            smirk = remember("SMIRK_EMOJI", default="😏")
+            await message.add_reaction(smirk)
             if False: #random.uniform(0, 70) > len(name):
                content = f"Hi {name}, I'm Dad"
                await self.bot.type_(message.channel, content)
