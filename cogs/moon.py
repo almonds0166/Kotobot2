@@ -38,7 +38,7 @@ class Lunar(commands.Cog):
       await self.bot.type_(ctx.channel, summary)
       msg = await ctx.send(summary)
 
-   @tasks.loop(hours=24)
+   @tasks.loop(minutes=97)
    async def check_moon_phase(self):
       channel_id = remember(self.bot.memory, "MOON_UPDATES")
       if channel_id is not None:
