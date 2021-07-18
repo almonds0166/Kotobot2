@@ -11,7 +11,7 @@ class Meta(commands.Cog):
    def __init__(self, bot):
       self.bot = bot
 
-   @commands.command()
+   @commands.command(aliases=["status"])
    async def stats(self, ctx):
       """Gives some analytics"""
       description = (
@@ -23,9 +23,10 @@ class Meta(commands.Cog):
          description=description,
          color=self.bot.color,
       )
+      s = "s" if self.bot.disconnects != 1 else ""
       e.add_field(
          name="Uptime",
-         value=f"{self.bot.format_uptime()} ({self.bot.disconnects} disconnects)",
+         value=f"{self.bot.format_uptime()} ({self.bot.disconnects} disconnect{s})",
          inline=True
       )
 
