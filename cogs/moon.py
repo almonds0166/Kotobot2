@@ -39,7 +39,7 @@ class Lunar(commands.Cog):
       channel_id = remember(self.bot.memory, "MOON_UPDATES")
       if channel_id is not None:
          mi = get_moon_info()
-         if mi.phase_name != self.bot.last_moon_info.phase_name:
+         if mi.phase_name() != self.bot.last_moon_info.phase_name():
             self.bot.last_moon_info = mi
             channel = self.bot.get_channel(int(channel_id))
             await channel.send(get_moon_summary())
