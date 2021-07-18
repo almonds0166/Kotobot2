@@ -9,10 +9,6 @@ import pytz
 import sys; sys.path.append("..")
 from util import get_moon_info, get_moon_emoji, get_moon_summary, remember
 
-TZ = pytz.timezone("America/New_York")
-HOUR = 3
-MINUTE = 0
-
 class Lunar(commands.Cog):
    """Behavior that has to do with phases of the moon"""
    def __init__(self, bot):
@@ -47,18 +43,6 @@ class Lunar(commands.Cog):
             self.bot.last_moon_info = mi
             channel = self.bot.get_channel(int(channel_id))
             await channel.send(get_moon_summary())
-
-   @check_moon_phase.before_loop
-   async def before_check_moon_phase(self):
-      await self.bot.wait_until_ready()
-      now = datetime.now(TZ)
-      future = datetime(now.year, now.month, now.day, HOUR, MINUTE, tzinfo=TZ)
-      if now.hour >= HOUR and now.minute > MINUTE:
-         future += timedelta(days=1)
-      now = now.replace(tzinfo=None)
-      future = future.replace(tzinfo=None)
-      sleep_time = (future - now).seconds
-      await asyncio.sleep(sleep_time)
 
 def setup(bot):
    bot.add_cog(Lunar(bot))
